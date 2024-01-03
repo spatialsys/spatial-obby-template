@@ -1,0 +1,16 @@
+{
+    "name": "SpatialObby",
+    "rootNamespace": "",
+    "references": [
+        "GUID:e04c5fd042e69476d9aa6503062b56d6"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
