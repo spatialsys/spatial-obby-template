@@ -88,10 +88,9 @@ public class ObbyPlatform : MonoBehaviour
     }
 
     // * Effects
-
     private void KillPlayer()
     {
-        ObbyGameManager.instance.KillPlayer();
+        ObbyGameManager.KillPlayer();
     }
 
     private void SetVelocity()
@@ -104,6 +103,18 @@ public class ObbyPlatform : MonoBehaviour
         SpatialBridge.actorService.localActor.avatar.AddForce(force * Time.deltaTime);
     }
 
+    public Bounds GetBounds()
+    {
+        //get the bounds by looking through all children of this object
+        Bounds bounds = new Bounds(transform.position, Vector3.zero);
+        foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
+        {
+            bounds.Encapsulate(renderer.bounds);
+        }
+        return bounds;
+    }
+
+#if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         if (_collider == null)
@@ -146,4 +157,5 @@ public class ObbyPlatform : MonoBehaviour
             //TODO: Draw capsule
         }
     }
+#endif
 }

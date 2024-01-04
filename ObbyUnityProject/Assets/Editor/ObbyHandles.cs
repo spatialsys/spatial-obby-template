@@ -19,6 +19,30 @@ public static class ObbyHandles
             return _nodeTexture;
         }
     }
+    private static Texture _startTexture;
+    public static Texture startTexture
+    {
+        get
+        {
+            if (_startTexture == null)
+            {
+                _startTexture = Resources.Load<Texture>("ObbyStartIcon");
+            }
+            return _startTexture;
+        }
+    }
+    private static Texture _endTexture;
+    public static Texture endTexture
+    {
+        get
+        {
+            if (_endTexture == null)
+            {
+                _endTexture = Resources.Load<Texture>("ObbyFinishIcon");
+            }
+            return _endTexture;
+        }
+    }
 
     public static void DrawHandles(ObbyCourse obbyManager, SceneView sceneView)
     {
@@ -32,18 +56,37 @@ public static class ObbyHandles
             Handles.DrawLine(NodeTransform(obbyManager.nodes[i - 1]).position, NodeTransform(obbyManager.nodes[i]).position, 2f);
 
             Handles.color = ObbySettings.editorColor;
+            //TODO: I think remove the plus handle.
+            /*
             if (PlusHandle((NodeTransform(obbyManager.nodes[i - 1]).position + NodeTransform(obbyManager.nodes[i]).position) / 2f, .15f))
             {
                 Debug.Log("Clicked");
             }
+            */
         }
     }
 
     public static void DrawFlags(ObbyCourse obbyManager, SceneView sceneView)
     {
-        foreach (ObbyNode node in obbyManager.nodes)
+        for (int i = 0; i < obbyManager.nodes.Length; i++)
         {
-            DrawNodeFlag(node);
+            ObbyNode node = obbyManager.nodes[i];
+            if (node == null)
+            {
+                continue;
+            }
+            if (i == 0)
+            {
+                DrawNodeFlag(node, startTexture);
+            }
+            else if (i == obbyManager.nodes.Length - 1)
+            {
+                DrawNodeFlag(node, endTexture);
+            }
+            else
+            {
+                DrawNodeFlag(node, nodeTexture);
+            }
         }
     }
 
@@ -88,12 +131,12 @@ public static class ObbyHandles
         return Handles.Button(position, cameraRot, size * 1.25f, size * 1.25f, Handles.CircleHandleCap);
     }
 
-    private static void DrawNodeFlag(ObbyNode node)
+    private static void DrawNodeFlag(ObbyNode node, Texture texture2D)
     {
         Handles.color = handleBlack;
         Vector3 labelPos = NodeTransform(node).position + Vector3.up * 2f * HandleUtility.GetHandleSize(NodeTransform(node).position);
         Handles.DrawLine(NodeTransform(node).position, labelPos, 3f);
-        Handles.Label(labelPos, new GUIContent(nodeTexture), new GUIStyle { fixedWidth = 32f, fixedHeight = 32f, alignment = TextAnchor.MiddleCenter });
+        Handles.Label(labelPos, new GUIContent(texture2D), new GUIStyle { fixedWidth = 32f, fixedHeight = 32f, alignment = TextAnchor.MiddleCenter });
         Handles.color = Color.clear;
         float handleSize = HandleUtility.GetHandleSize(NodeTransform(node).position) * .2f;
         if (Handles.Button(labelPos, SceneView.currentDrawingSceneView.camera.transform.rotation, handleSize, handleSize, Handles.CircleHandleCap))

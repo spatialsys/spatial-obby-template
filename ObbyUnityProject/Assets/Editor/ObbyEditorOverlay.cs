@@ -15,7 +15,6 @@ namespace SpatialSys.Obby.Editor
         public bool visible => true;
         private bool initEvents = false;
 
-        private ObbyCourse selectedCourse;
         private int tab = 0;
 
         //settings
@@ -23,6 +22,8 @@ namespace SpatialSys.Obby.Editor
         private static bool SHOW_CONNECTIONS_DEFAULT = true;
         private static string SHOW_BOUNDS_KEY = "SpatialObby_ShowBounds";
         private static bool SHOW_BOUNDS_DEFAULT = false;
+        private static string SHOW_FLAGS_KEY = "SpatialObby_ShowFlags";
+        private static bool SHOW_FLAGS_DEFAULT = true;
 
         public override VisualElement CreatePanelContent()
         {
@@ -37,19 +38,6 @@ namespace SpatialSys.Obby.Editor
 
         private void DrawUI()
         {
-            List<ObbyCourse> obbyCourses = GameObject.FindObjectsOfType<ObbyCourse>().ToList();
-
-            if (obbyCourses.Count == 0)
-            {
-                GUILayout.Label("No Obby Courses found in scene");
-                return;
-            }
-            if (selectedCourse == null)
-            {
-                selectedCourse = obbyCourses[0];
-            }
-
-            selectedCourse = obbyCourses[EditorGUILayout.Popup(obbyCourses.IndexOf(selectedCourse), obbyCourses.Select(course => course.courseName).ToArray())];
 
             tab = GUILayout.Toolbar(tab, new string[] { "Edit", "Settings" });
             switch (tab)
@@ -76,25 +64,34 @@ namespace SpatialSys.Obby.Editor
             {
                 EditorPrefs.SetBool(SHOW_BOUNDS_KEY, !bounds);
             }
+
+            bool flags = EditorPrefs.GetBool(SHOW_FLAGS_KEY, SHOW_FLAGS_DEFAULT);
+            if (EditorGUILayout.Toggle("Show Node Flags", flags) != flags)
+            {
+                EditorPrefs.SetBool(SHOW_FLAGS_KEY, !flags);
+            }
         }
 
         private void DrawHandles(SceneView sceneView)
         {
-            if (selectedCourse == null)
-            {
-                return;
-            }
+            List<ObbyCourse> obbyCourses = GameObject.FindObjectsOfType<ObbyCourse>().ToList();
 
-            ObbyHandles.DrawFlags(selectedCourse, sceneView);
-
-            if (EditorPrefs.GetBool(SHOW_CONNECTIONS_KEY, SHOW_CONNECTIONS_DEFAULT))
+            foreach (ObbyCourse obbyCourse in obbyCourses)
             {
-                ObbyHandles.DrawConnections(selectedCourse, sceneView);
-            }
+                if (EditorPrefs.GetBool(SHOW_FLAGS_KEY, SHOW_FLAGS_DEFAULT))
+                {
+                    ObbyHandles.DrawFlags(obbyCourse, sceneView);
+                }
 
-            if (EditorPrefs.GetBool(SHOW_BOUNDS_KEY, SHOW_BOUNDS_DEFAULT))
-            {
-                ObbyHandles.DrawBounds(selectedCourse, sceneView);
+                if (EditorPrefs.GetBool(SHOW_CONNECTIONS_KEY, SHOW_CONNECTIONS_DEFAULT))
+                {
+                    ObbyHandles.DrawConnections(obbyCourse, sceneView);
+                }
+
+                if (EditorPrefs.GetBool(SHOW_BOUNDS_KEY, SHOW_BOUNDS_DEFAULT))
+                {
+                    ObbyHandles.DrawBounds(obbyCourse, sceneView);
+                }
             }
         }
     }
