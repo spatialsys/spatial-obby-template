@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 
 public static class ObbyHandles
@@ -19,16 +20,28 @@ public static class ObbyHandles
             return _nodeTexture;
         }
     }
-    private static Texture _startTexture;
-    public static Texture startTexture
+    private static Texture _nodeDetachedTexture;
+    public static Texture nodeDetachedTexture
     {
         get
         {
-            if (_startTexture == null)
+            if (_nodeDetachedTexture == null)
             {
-                _startTexture = Resources.Load<Texture>("ObbyStartIcon");
+                _nodeDetachedTexture = Resources.Load<Texture>("ObbyNodeDetachedIcon");
             }
-            return _startTexture;
+            return _nodeDetachedTexture;
+        }
+    }
+    private static Texture _startTextTexture;
+    public static Texture startTextTexture
+    {
+        get
+        {
+            if (_startTextTexture == null)
+            {
+                _startTextTexture = Resources.Load<Texture>("ObbyStartText");
+            }
+            return _startTextTexture;
         }
     }
     private static Texture _endTexture;
@@ -43,12 +56,20 @@ public static class ObbyHandles
             return _endTexture;
         }
     }
-
-    public static void DrawHandles(ObbyCourse obbyManager, SceneView sceneView)
+    private static Texture _nodeConfigErrorTexture;
+    public static Texture nodeConfigErrorTexture
     {
+        get
+        {
+            if (_nodeConfigErrorTexture == null)
+            {
+                _nodeConfigErrorTexture = Resources.Load<Texture>("NodeConfigError");
+            }
+            return _nodeConfigErrorTexture;
+        }
     }
 
-    public static void DrawConnections(ObbyCourse obbyManager, SceneView sceneView)
+    public static void DrawCourseConnections(ObbyCourse obbyManager, SceneView sceneView)
     {
         for (int i = 1; i < obbyManager.nodes.Length; i++)
         {
@@ -56,17 +77,10 @@ public static class ObbyHandles
             Handles.DrawLine(NodeTransform(obbyManager.nodes[i - 1]).position, NodeTransform(obbyManager.nodes[i]).position, 2f);
 
             Handles.color = ObbySettings.editorColor;
-            //TODO: I think remove the plus handle.
-            /*
-            if (PlusHandle((NodeTransform(obbyManager.nodes[i - 1]).position + NodeTransform(obbyManager.nodes[i]).position) / 2f, .15f))
-            {
-                Debug.Log("Clicked");
-            }
-            */
         }
     }
 
-    public static void DrawFlags(ObbyCourse obbyManager, SceneView sceneView)
+    public static void DrawCourseFlags(ObbyCourse obbyManager, SceneView sceneView)
     {
         for (int i = 0; i < obbyManager.nodes.Length; i++)
         {
@@ -75,66 +89,23 @@ public static class ObbyHandles
             {
                 continue;
             }
-            if (i == 0)
+            if (i == obbyManager.nodes.Length - 1)
             {
-                DrawNodeFlag(node, startTexture);
-            }
-            else if (i == obbyManager.nodes.Length - 1)
-            {
-                DrawNodeFlag(node, endTexture);
+                DrawNodeFlag(node, endTexture, false);
             }
             else
             {
-                DrawNodeFlag(node, nodeTexture);
+                DrawNodeFlag(node, nodeTexture, i == 0);
             }
         }
     }
 
-    //Draw a clickable Plus (+)
-    private static bool PlusHandle(Vector3 position, float size)
+    public static void DrawNodeFlag(ObbyNode node, Texture texture2D, bool isFirst)
     {
-        size *= HandleUtility.GetHandleSize(position);
-        var cameraRot = SceneView.currentDrawingSceneView.camera.transform.rotation;
-        var pointsA = new Vector3[]{
-                position + cameraRot * new Vector3(1f,.4f,0f) * size,
-                position + cameraRot * new Vector3(1f,-.4f, 0f) * size,
-                position + cameraRot * new Vector3(-1f,-.4f,0f) * size,
-                position + cameraRot * new Vector3(-1f,.4f, 0f) * size,
-            };
-        var pointsB = new Vector3[]{
-                position + cameraRot * new Vector3(.4f,1f,0f) * size,
-                position + cameraRot * new Vector3(.4f,-1f, 0f) * size,
-                position + cameraRot * new Vector3(-.4f,-1f,0f) * size,
-                position + cameraRot * new Vector3(-.4f,1f, 0f) * size,
-            };
+        float flagHeight = 1.4f;
 
-        var pointsC = new Vector3[]{
-                position + cameraRot * new Vector3(.7f,.1f,0f) * size,
-                position + cameraRot * new Vector3(.7f,-.1f, 0f) * size,
-                position + cameraRot * new Vector3(-.7f,-.1f,0f) * size,
-                position + cameraRot * new Vector3(-.7f,.1f, 0f) * size,
-            };
-        var pointsD = new Vector3[]{
-                position + cameraRot * new Vector3(.1f,.7f,0f) * size,
-                position + cameraRot * new Vector3(.1f,-.7f, 0f) * size,
-                position + cameraRot * new Vector3(-.1f,-.7f,0f) * size,
-                position + cameraRot * new Vector3(-.1f,.7f, 0f) * size,
-            };
-
-        Handles.color = Color.white;
-        Handles.DrawSolidRectangleWithOutline(pointsA, handleBlack, handleBlack);
-        Handles.DrawSolidRectangleWithOutline(pointsB, handleBlack, handleBlack);
-        Handles.DrawSolidRectangleWithOutline(pointsC, ObbySettings.editorColor, ObbySettings.editorColor);
-        Handles.DrawSolidRectangleWithOutline(pointsD, ObbySettings.editorColor, ObbySettings.editorColor);
-
-        Handles.color = Color.clear;
-        return Handles.Button(position, cameraRot, size * 1.25f, size * 1.25f, Handles.CircleHandleCap);
-    }
-
-    private static void DrawNodeFlag(ObbyNode node, Texture texture2D)
-    {
         Handles.color = handleBlack;
-        Vector3 labelPos = NodeTransform(node).position + Vector3.up * 2f * HandleUtility.GetHandleSize(NodeTransform(node).position);
+        Vector3 labelPos = NodeTransform(node).position + Vector3.up * flagHeight * HandleUtility.GetHandleSize(NodeTransform(node).position);
         Handles.DrawLine(NodeTransform(node).position, labelPos, 3f);
         Handles.Label(labelPos, new GUIContent(texture2D), new GUIStyle { fixedWidth = 32f, fixedHeight = 32f, alignment = TextAnchor.MiddleCenter });
         Handles.color = Color.clear;
@@ -143,6 +114,20 @@ public static class ObbyHandles
         {
             Selection.activeGameObject = node.gameObject;
         }
+
+        if (isFirst)
+        {
+            //draw a (start) above the first node
+            Vector3 startLabelPos = NodeTransform(node).position + Vector3.up * (flagHeight + .4f) * HandleUtility.GetHandleSize(NodeTransform(node).position);
+            Handles.Label(startLabelPos, new GUIContent(startTextTexture), new GUIStyle { fixedWidth = 64f, fixedHeight = 22f, alignment = TextAnchor.MiddleCenter });
+        }
+
+        if (node.nodePlatform == null || node.target == null)
+        {
+            //draw a warning icon if the node is missing a platform or target
+            Vector3 errorLabelPos = NodeTransform(node).position + Vector3.up * (flagHeight - .2f) * HandleUtility.GetHandleSize(NodeTransform(node).position);
+            Handles.Label(errorLabelPos, new GUIContent(nodeConfigErrorTexture), new GUIStyle { fixedWidth = 16f, fixedHeight = 16f, alignment = TextAnchor.MiddleCenter });
+        }
     }
 
     private static Transform NodeTransform(ObbyNode node)
@@ -150,7 +135,7 @@ public static class ObbyHandles
         return node.nodePlatform == null ? node.transform : node.nodePlatform.transform;
     }
 
-    public static void DrawBounds(ObbyCourse course, SceneView sceneView)
+    public static void DrawCourseBounds(ObbyCourse course, SceneView sceneView)
     {
         GUIStyle boundsWarning = new GUIStyle();
         boundsWarning.normal.textColor = Color.red;
@@ -168,6 +153,10 @@ public static class ObbyHandles
             foreach (Renderer renderer in node.GetComponentsInChildren<Renderer>())
             {
                 bounds[i].Encapsulate(renderer.bounds);
+            }
+            if (node.target != null)
+            {
+                bounds[i].Encapsulate(node.target.transform.position);
             }
             Handles.color = ObbySettings.nodeBoundsColors[i % ObbySettings.nodeBoundsColors.Length];
             Handles.DrawWireCube(bounds[i].center, bounds[i].size);

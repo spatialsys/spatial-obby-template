@@ -8,8 +8,13 @@ public enum ObbyPlatformActorEffect
 {
     None,
     Kill,
-    SetVelocity,
     Force,
+}
+
+public enum ForceSpace
+{
+    Local,
+    World,
 }
 
 [RequireComponent(typeof(Collider))]
@@ -23,6 +28,7 @@ public class ObbyPlatform : MonoBehaviour
 
     //Affectors
     public ObbyPlatformActorEffect actorEffect = ObbyPlatformActorEffect.None;
+    public ForceSpace forceSpace = ForceSpace.Local;
     public Vector3 force = Vector3.zero;
 
     public UnityEvent OnPlayerEnter;
@@ -61,9 +67,6 @@ public class ObbyPlatform : MonoBehaviour
             case ObbyPlatformActorEffect.Kill:
                 KillPlayer();
                 break;
-            case ObbyPlatformActorEffect.SetVelocity:
-                SetVelocity();
-                break;
         }
     }
 
@@ -93,14 +96,9 @@ public class ObbyPlatform : MonoBehaviour
         ObbyGameManager.KillPlayer();
     }
 
-    private void SetVelocity()
-    {
-        SpatialBridge.actorService.localActor.avatar.velocity = force;
-    }
-
     private void ApplyForceToPlayer()
     {
-        SpatialBridge.actorService.localActor.avatar.AddForce(force * Time.deltaTime);
+        SpatialBridge.actorService.localActor.avatar.AddForce((forceSpace == ForceSpace.World ? force : transform.rotation * force) * Time.deltaTime);
     }
 
     public Bounds GetBounds()
@@ -112,6 +110,16 @@ public class ObbyPlatform : MonoBehaviour
             bounds.Encapsulate(renderer.bounds);
         }
         return bounds;
+    }
+    public Bounds GetLocalBounds()
+    {
+        //get the bounds by looking through all children of this object
+        Bounds bounds = new Bounds(Vector3.zero, Vector3.zero);
+        foreach (Renderer renderer in GetComponentsInChildren<Renderer>())
+        {
+            bounds.Encapsulate(renderer.localBounds);
+        }
+        return new Bounds(bounds.center, new Vector3(bounds.size.x * transform.localScale.x, bounds.size.y * transform.localScale.y, bounds.size.z * transform.localScale.z));
     }
 
 #if UNITY_EDITOR
@@ -128,9 +136,6 @@ public class ObbyPlatform : MonoBehaviour
                 break;
             case ObbyPlatformActorEffect.Kill:
                 Gizmos.color = ObbySettings.killColor;
-                break;
-            case ObbyPlatformActorEffect.SetVelocity:
-                Gizmos.color = ObbySettings.launchColor;
                 break;
             case ObbyPlatformActorEffect.Force:
                 Gizmos.color = ObbySettings.forceColor;

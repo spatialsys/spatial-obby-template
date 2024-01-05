@@ -24,6 +24,11 @@ namespace SpatialSys.Obby.Editor
         private static bool SHOW_BOUNDS_DEFAULT = false;
         private static string SHOW_FLAGS_KEY = "SpatialObby_ShowFlags";
         private static bool SHOW_FLAGS_DEFAULT = true;
+        private static string AUTO_ARRANGE_COURSES = "SpatialObby_AutoArrangeCourses";
+        private static bool AUTO_ARRANGE_COURSES_DEFAULT = true;
+        private static string AUTO_ARRANGE_COURSE_SPACING = "SpatialObby_AutoArrangeCourseSpacing";
+        private static float AUTO_ARRANGE_COURSE_SPACING_DEFAULT = .25f;
+
 
         public override VisualElement CreatePanelContent()
         {
@@ -70,6 +75,41 @@ namespace SpatialSys.Obby.Editor
             {
                 EditorPrefs.SetBool(SHOW_FLAGS_KEY, !flags);
             }
+
+            bool autoArrange = EditorPrefs.GetBool(AUTO_ARRANGE_COURSES, AUTO_ARRANGE_COURSES_DEFAULT);
+            if (EditorGUILayout.Toggle("Auto Arrange Courses", autoArrange) != autoArrange)
+            {
+                EditorPrefs.SetBool(AUTO_ARRANGE_COURSES, !autoArrange);
+            }
+
+            float autoArrangeSpacing = EditorPrefs.GetFloat(AUTO_ARRANGE_COURSE_SPACING, AUTO_ARRANGE_COURSE_SPACING_DEFAULT);
+            float newSpacing = EditorGUILayout.FloatField("Auto Arrange Course Spacing", autoArrangeSpacing);
+            if (newSpacing != autoArrangeSpacing)
+            {
+                EditorPrefs.SetFloat(AUTO_ARRANGE_COURSE_SPACING, newSpacing);
+            }
+
+            if (GUILayout.Button("Scramble"))
+            {
+                List<ObbyCourse> obbyCourses = GameObject.FindObjectsOfType<ObbyCourse>().ToList();
+                //randomize the order of the nodes in each course, keeping the first and last nodes in place.
+                foreach (ObbyCourse obbyCourse in obbyCourses)
+                {
+                    if (obbyCourse.nodes.Length < 3)
+                    {
+                        continue;
+                    }
+                    List<ObbyNode> nodes = obbyCourse.nodes.ToList();
+                    ObbyNode firstNode = nodes[0];
+                    ObbyNode lastNode = nodes[nodes.Count - 1];
+                    nodes.RemoveAt(0);
+                    nodes.RemoveAt(nodes.Count - 1);
+                    nodes = nodes.OrderBy(x => Random.value).ToList();
+                    nodes.Insert(0, firstNode);
+                    nodes.Add(lastNode);
+                    obbyCourse.nodes = nodes.ToArray();
+                }
+            }
         }
 
         private void DrawHandles(SceneView sceneView)
@@ -80,18 +120,59 @@ namespace SpatialSys.Obby.Editor
             {
                 if (EditorPrefs.GetBool(SHOW_FLAGS_KEY, SHOW_FLAGS_DEFAULT))
                 {
-                    ObbyHandles.DrawFlags(obbyCourse, sceneView);
+                    ObbyHandles.DrawCourseFlags(obbyCourse, sceneView);
                 }
 
                 if (EditorPrefs.GetBool(SHOW_CONNECTIONS_KEY, SHOW_CONNECTIONS_DEFAULT))
                 {
-                    ObbyHandles.DrawConnections(obbyCourse, sceneView);
+                    ObbyHandles.DrawCourseConnections(obbyCourse, sceneView);
                 }
 
                 if (EditorPrefs.GetBool(SHOW_BOUNDS_KEY, SHOW_BOUNDS_DEFAULT))
                 {
-                    ObbyHandles.DrawBounds(obbyCourse, sceneView);
+                    ObbyHandles.DrawCourseBounds(obbyCourse, sceneView);
                 }
+
+                if (EditorPrefs.GetBool(AUTO_ARRANGE_COURSES, AUTO_ARRANGE_COURSES_DEFAULT))
+                {
+                    AutoPositionCourse(obbyCourse);
+                }
+            }
+
+            List<ObbyNode> obbyNodes = GameObject.FindObjectsOfType<ObbyNode>().ToList();
+            //Find all nodes that are not part of a course
+            foreach (ObbyNode obbyNode in obbyNodes)
+            {
+                if (obbyCourses.Any(c => c.nodes.Contains(obbyNode)))
+                {
+                    continue;
+                }
+                ObbyHandles.DrawNodeFlag(obbyNode, ObbyHandles.nodeDetachedTexture, false);
+            }
+        }
+
+        private void AutoPositionCourse(ObbyCourse course)
+        {
+            for (int i = 0; i < course.nodes.Length; i++)
+            {
+                ObbyNode node = course.nodes[i];
+                if (node == null || node.target == null || node.nodePlatform == null || i == course.nodes.Length - 1)
+                {
+                    continue;
+                }
+                ObbyNode nextNode = course.nodes[i + 1];
+                if (nextNode == null || nextNode.nodePlatform == null)
+                {
+                    continue;
+                }
+
+                Vector3 targetPos = node.target.transform.position;
+                Quaternion targetRot = node.target.transform.rotation;
+
+                Bounds platformBounds = nextNode.nodePlatform.GetLocalBounds();
+                float spacing = EditorPrefs.GetFloat(AUTO_ARRANGE_COURSE_SPACING, AUTO_ARRANGE_COURSE_SPACING_DEFAULT);
+                nextNode.transform.position = targetPos + targetRot * new Vector3(0f, 0f, platformBounds.extents.z + spacing);
+                nextNode.transform.rotation = targetRot;
             }
         }
     }

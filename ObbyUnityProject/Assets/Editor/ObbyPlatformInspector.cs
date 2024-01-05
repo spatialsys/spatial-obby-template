@@ -28,18 +28,11 @@ public class ObbyPlatformInspector : Editor
         var t = target as ObbyPlatform;
         switch (t.actorEffect)
         {
-            case ObbyPlatformActorEffect.SetVelocity:
-                if (t.force.magnitude > 0)
-                {
-                    Handles.color = new Color(ObbySettings.launchColor.r, ObbySettings.launchColor.g, ObbySettings.launchColor.b, .25f);
-                    Handles.ArrowHandleCap(-1, t.transform.position, Quaternion.LookRotation(t.force), 1f, EventType.Repaint);
-                }
-                break;
             case ObbyPlatformActorEffect.Force:
                 if (t.force.magnitude > 0)
                 {
                     Handles.color = new Color(ObbySettings.forceColor.r, ObbySettings.forceColor.g, ObbySettings.forceColor.b, .25f);
-                    Handles.ArrowHandleCap(-1, t.transform.position, Quaternion.LookRotation(t.force), 1f, EventType.Repaint);
+                    Handles.ArrowHandleCap(-1, t.transform.position, Quaternion.LookRotation(t.forceSpace == ForceSpace.World ? t.force : t.transform.rotation * t.force), 1f, EventType.Repaint);
                 }
                 break;
         }
@@ -61,12 +54,9 @@ public class ObbyPlatformInspector : Editor
             case ObbyPlatformActorEffect.Kill:
                 EditorGUILayout.HelpBox("Kill the player, playing the active courses DeathVFX and respawning the player at the last checkpoint.", MessageType.None);
                 break;
-            case ObbyPlatformActorEffect.SetVelocity:
-                EditorGUILayout.HelpBox("Add the force to the player instantly when they enter the platform.", MessageType.None);
-                EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(ObbyPlatform.force)));
-                break;
             case ObbyPlatformActorEffect.Force:
                 EditorGUILayout.HelpBox("Add the force to the player over time while they are touching the platform.", MessageType.None);
+                EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(ObbyPlatform.forceSpace)));
                 EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(ObbyPlatform.force)));
                 break;
         }

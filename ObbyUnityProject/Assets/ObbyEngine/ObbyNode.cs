@@ -7,6 +7,7 @@ using UnityEngine;
 public class ObbyNode : MonoBehaviour
 {
     public ObbyPlatform nodePlatform;
+    public ObbyNodeTarget target;
 
     private void OnEnable()
     {

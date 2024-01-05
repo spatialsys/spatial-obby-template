@@ -3,11 +3,11 @@ CompatibilityAssetBundleManifest:
   AssetBundleInfos:
     Info_0:
       Name: space-1_0
-      Hash: 29ea10cf02186590dfba3fbb9c13f26e
-      CRC: 3490506686
+      Hash: ead17a939a7827914905a5a594aef4c5
+      CRC: 2731563879
       Dependencies: {}
     Info_1:
       Name: space-1_csharp-assembly
-      Hash: cb510bd41998ba49807da11cf0b2939b
-      CRC: 60270249
+      Hash: 21ef2e58e309927c0f34eb25e4d85888
+      CRC: 3809607436
       Dependencies: {}

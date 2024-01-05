@@ -28,7 +28,7 @@ public class ObbyGameManager : MonoBehaviour
 
     private Coroutine killCo;
 
-    private void Start()
+    private void Awake()
     {
         instance = this;
         StartCoroutine(LoadFromSave());
@@ -36,6 +36,7 @@ public class ObbyGameManager : MonoBehaviour
 
     private IEnumerator LoadFromSave()
     {
+        yield return new WaitUntil(() => SpatialBridge.actorService != null);
         yield return new WaitUntil(() => SpatialBridge.GetIsSceneInitialized.Invoke());
 
         //TODO: Load from datastore

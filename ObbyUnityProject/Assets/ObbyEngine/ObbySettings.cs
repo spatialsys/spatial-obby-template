@@ -21,7 +21,6 @@ public static class ObbySettings
     };
 
     public static Color killColor = Color.red;
-    public static Color launchColor = Color.magenta;
     public static Color forceColor = Color.cyan;
 
     //how far max should two node bounds be from eachother before giving a warning.
