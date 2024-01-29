@@ -99,6 +99,7 @@ namespace SpatialSys.Obby.Editor
                     {
                         continue;
                     }
+                    Undo.RecordObject(obbyCourse, "shuffle");
                     List<ObbyNode> nodes = obbyCourse.nodes.ToList();
                     ObbyNode firstNode = nodes[0];
                     ObbyNode lastNode = nodes[nodes.Count - 1];
