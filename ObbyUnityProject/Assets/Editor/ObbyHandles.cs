@@ -135,6 +135,21 @@ public static class ObbyHandles
         return node.nodePlatform == null ? node.transform : node.nodePlatform.transform;
     }
 
+    public static void DrawWaypointPaths(ObbyCourse obbyManager)
+    {
+        foreach (ObbyNode node in obbyManager.nodes) 
+        {
+            foreach (ObbyWaypointCarousel carousel in node.GetComponentsInChildren<ObbyWaypointCarousel>()) {
+                Handles.color = ObbySettings.editorColor;
+                for (int i = 1; i < carousel.waypointsInternal.Count; i++) 
+                {
+                    Handles.DrawLine(carousel.waypointsInternal[i - 1].position, carousel.waypointsInternal[i].position, 1f);
+                    Handles.color = ObbySettings.editorColor;
+                }
+            }
+        }
+    }
+
     public static void DrawCourseBounds(ObbyCourse course, SceneView sceneView)
     {
         GUIStyle boundsWarning = new GUIStyle();
