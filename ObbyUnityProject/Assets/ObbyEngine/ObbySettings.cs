@@ -23,6 +23,8 @@ public static class ObbySettings
     public static Color killColor = Color.red;
     public static Color forceColor = Color.cyan;
     public static Color trampolineColor = Color.blue;
+    public static Color speedMultiplierColor = Color.magenta;
+
 
     //how far max should two node bounds be from eachother before giving a warning.
     //This value is the point at which theres probably no way the player could make the jump
