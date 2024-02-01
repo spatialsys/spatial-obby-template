@@ -20,6 +20,8 @@ namespace SpatialSys.Obby.Editor
         //settings
         private static string SHOW_CONNECTIONS_KEY = "SpatialObby_ShowConnections";
         private static bool SHOW_CONNECTIONS_DEFAULT = true;
+        private static string SHOW_WAYPOINT_PATHS_KEY = "SpatialObby_ShowWaypointPaths";
+        private static bool SHOW_WAYPOINT_PATHS_DEFAULT = true;
         private static string SHOW_BOUNDS_KEY = "SpatialObby_ShowBounds";
         private static bool SHOW_BOUNDS_DEFAULT = false;
         private static string SHOW_FLAGS_KEY = "SpatialObby_ShowFlags";
@@ -64,6 +66,12 @@ namespace SpatialSys.Obby.Editor
                 EditorPrefs.SetBool(SHOW_CONNECTIONS_KEY, !connection);
             }
 
+            bool waypointPaths = EditorPrefs.GetBool(SHOW_WAYPOINT_PATHS_KEY, SHOW_WAYPOINT_PATHS_DEFAULT);
+            if (EditorGUILayout.Toggle("Show Waypoint Paths", waypointPaths) != waypointPaths)
+            {
+                EditorPrefs.SetBool(SHOW_WAYPOINT_PATHS_KEY, !waypointPaths);
+            }
+
             bool bounds = EditorPrefs.GetBool(SHOW_BOUNDS_KEY, SHOW_BOUNDS_DEFAULT);
             if (EditorGUILayout.Toggle("Show Node Bounds", bounds) != bounds)
             {
@@ -99,6 +107,7 @@ namespace SpatialSys.Obby.Editor
                     {
                         continue;
                     }
+                    Undo.RecordObject(obbyCourse, "shuffle");
                     List<ObbyNode> nodes = obbyCourse.nodes.ToList();
                     ObbyNode firstNode = nodes[0];
                     ObbyNode lastNode = nodes[nodes.Count - 1];
@@ -137,6 +146,9 @@ namespace SpatialSys.Obby.Editor
                 {
                     AutoPositionCourse(obbyCourse);
                 }
+
+                if (EditorPrefs.GetBool(SHOW_WAYPOINT_PATHS_KEY, SHOW_WAYPOINT_PATHS_DEFAULT))
+                ObbyHandles.DrawWaypointPaths(obbyCourse);
             }
 
             List<ObbyNode> obbyNodes = GameObject.FindObjectsOfType<ObbyNode>().ToList();

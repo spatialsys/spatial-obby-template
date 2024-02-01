@@ -9,6 +9,7 @@ public enum ObbyPlatformActorEffect
     None,
     Kill,
     Force,
+    Trampoline,
 }
 
 public enum ForceSpace
@@ -30,6 +31,7 @@ public class ObbyPlatform : MonoBehaviour
     public ObbyPlatformActorEffect actorEffect = ObbyPlatformActorEffect.None;
     public ForceSpace forceSpace = ForceSpace.Local;
     public Vector3 force = Vector3.zero;
+    public float trampolineHeight = 0;
 
     public UnityEvent OnPlayerEnter;
     public UnityEvent OnPlayerExit;
@@ -77,6 +79,9 @@ public class ObbyPlatform : MonoBehaviour
             case ObbyPlatformActorEffect.Force:
                 ApplyForceToPlayer();
                 break;
+            case ObbyPlatformActorEffect.Trampoline:
+                BouncePlayer();
+                break;
         }
     }
 
@@ -99,6 +104,10 @@ public class ObbyPlatform : MonoBehaviour
     private void ApplyForceToPlayer()
     {
         SpatialBridge.actorService.localActor.avatar.AddForce((forceSpace == ForceSpace.World ? force : transform.rotation * force) * Time.deltaTime);
+    }
+    private void BouncePlayer() {
+        SpatialBridge.actorService.localActor.avatar.AddForce(Vector3.up * trampolineHeight);
+        SpatialBridge.actorService.localActor.avatar.Jump();
     }
 
     public Bounds GetBounds()
@@ -140,6 +149,10 @@ public class ObbyPlatform : MonoBehaviour
             case ObbyPlatformActorEffect.Force:
                 Gizmos.color = ObbySettings.forceColor;
                 break;
+            case ObbyPlatformActorEffect.Trampoline:
+                Gizmos.color = ObbySettings.trampolineColor;
+                break;
+
         }
 
         Gizmos.matrix = transform.localToWorldMatrix;

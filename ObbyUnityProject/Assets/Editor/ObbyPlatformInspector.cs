@@ -59,6 +59,10 @@ public class ObbyPlatformInspector : Editor
                 EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(ObbyPlatform.forceSpace)));
                 EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(ObbyPlatform.force)));
                 break;
+            case ObbyPlatformActorEffect.Trampoline:
+                EditorGUILayout.HelpBox("Bounce the player into the air.", MessageType.None);
+                EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(ObbyPlatform.trampolineHeight)));
+                break;
         }
 
         EditorGUILayout.Space();

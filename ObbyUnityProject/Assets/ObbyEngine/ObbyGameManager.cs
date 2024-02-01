@@ -7,6 +7,7 @@ using UnityEngine;
 
 public class ObbyGameManager : MonoBehaviour
 {
+    private const string SAVED_PROGRESS_KEY = "OBBY_GAME_SAVED_PROGRESS";
     public static ObbyGameManager instance;
 
     //* Inspector
@@ -39,15 +40,14 @@ public class ObbyGameManager : MonoBehaviour
         yield return new WaitUntil(() => SpatialBridge.actorService != null);
         yield return new WaitUntil(() => SpatialBridge.GetIsSceneInitialized.Invoke());
 
-        //TODO: Load from datastore
-
         if (defaultCourse == null)
         {
             Debug.LogError("No default course set!");
             yield break;
         }
-
-        SetCourseAndNode(defaultCourse, 0, teleportPlayerToNodeOnStart);
+        DataStoreGetVariableRequest req = SpatialBridge.userWorldDataStoreService.GetVariable(SavedDataKeyForCourse(defaultCourse), 0);
+        yield return new WaitUntil(() => req.isDone);
+        SetCourseAndNode(defaultCourse, (int)req.value, teleportPlayerToNodeOnStart);
     }
 
     public static void HandleNodeEnter(ObbyNode node)
@@ -120,12 +120,14 @@ public class ObbyGameManager : MonoBehaviour
         {
             instance.saveFile[course.courseID] = Mathf.Max(instance.saveFile[course.courseID], nodeIndex);
         }
+        
 
         bool isNewLocation = instance.currentCourse != course || instance.currentCourseNodeIndex != nodeIndex;
         instance.currentCourse = course;
         instance.currentCourseNodeIndex = nodeIndex;
 
 
+        SpatialBridge.userWorldDataStoreService.SetVariable(SavedDataKeyForCourse(course), instance.saveFile[course.courseID]);
         if (isNewLocation)
         {
             instance.OnCurrentNodeChanged?.Invoke();
@@ -206,5 +208,8 @@ public class ObbyGameManager : MonoBehaviour
         }
         course = null;
         return false;
+    }
+    private static string SavedDataKeyForCourse(ObbyCourse course) {
+        return $"{SAVED_PROGRESS_KEY}_{course.courseID}";
     }
 }

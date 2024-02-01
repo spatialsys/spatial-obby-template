@@ -5,7 +5,6 @@ using UnityEngine;
 /// <summary>
 /// Manages an obby course
 /// </summary>
-[ExecuteAlways]
 public class ObbyCourse : MonoBehaviour
 {
     public string courseID;
