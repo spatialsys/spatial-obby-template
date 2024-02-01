@@ -12,13 +12,12 @@ public class ObbyProgressUI : MonoBehaviour
     void Start()
     {
         ObbyGameManager.instance.OnCurrentNodeChanged += UpdateText;
-        progressBar.fillAmount = (float)ObbyGameManager.instance.currentCourseNodeIndex / (float)ObbyGameManager.instance.currentCourse.nodes.Length;
-        progressText.text = Mathf.RoundToInt(progressBar.fillAmount * 100) + "%";
+        UpdateText();
     }
 
     private void UpdateText()
     {
-        progressBar.fillAmount = (float)ObbyGameManager.instance.currentCourseNodeIndex / (float)ObbyGameManager.instance.currentCourse.nodes.Length;
+        progressBar.fillAmount = (float)ObbyGameManager.instance.currentCourseNodeIndex / (ObbyGameManager.instance.currentCourse.nodes.Length - 1);
         progressText.text = Mathf.RoundToInt(progressBar.fillAmount * 100) + "%";
     }
 }
