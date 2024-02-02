@@ -141,9 +141,9 @@ public static class ObbyHandles
         {
             foreach (ObbyWaypointCarousel carousel in node.GetComponentsInChildren<ObbyWaypointCarousel>()) {
                 Handles.color = ObbySettings.editorColor;
-                for (int i = 1; i < carousel.waypointsInternal.Count; i++) 
+                for (int i = 1; i < carousel.waypoints.Count; i++) 
                 {
-                    Handles.DrawLine(carousel.waypointsInternal[i - 1].position, carousel.waypointsInternal[i].position, 1f);
+                    Handles.DrawLine(carousel.waypoints[i - 1].position, carousel.waypoints[i].position, 1f);
                     Handles.color = ObbySettings.editorColor;
                 }
             }

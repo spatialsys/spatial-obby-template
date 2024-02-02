@@ -47,19 +47,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57e15ada4fa7247b4b23ab49f4f8b201, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waypoints:
+  _waypoints:
   - {fileID: 4119677695835993950}
   - {fileID: 2580967299265998518}
-  waypointsInternal:
-  - {fileID: 4119677695835993950}
-  - {fileID: 2580967299265998518}
-  platforms:
+  _platforms:
   - {fileID: 34586332774054946}
   speed: 3
   loopType: 0
+  pauseAtEnds: 0
+  pauseTime: 0.5
   spacingType: 1
   customSpacing: 3.3333337
-  maxSpacing: 10
+  maxSpacing: 12
 --- !u!1 &1738642833315875333
 GameObject:
   m_ObjectHideFlags: 0
@@ -89,7 +88,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1738642833315875333}
   m_LocalRotation: {x: -0, y: 0.000000059604638, z: -0, w: 1}
-  m_LocalPosition: {x: -5, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 3, y: 0.5, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -221,7 +220,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5922433520091552256}
   m_LocalRotation: {x: -0, y: 0.00000011920929, z: -0, w: 1}
-  m_LocalPosition: {x: 5, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 12}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -252,7 +251,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8265851745620326703}
   m_LocalRotation: {x: -0, y: 0.00000011920929, z: -0, w: 1}
-  m_LocalPosition: {x: -5, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

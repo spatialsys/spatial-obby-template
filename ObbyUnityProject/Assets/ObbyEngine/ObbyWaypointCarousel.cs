@@ -15,9 +15,26 @@ public enum WaypointSpacingType {
 
 public class ObbyWaypointCarousel : MonoBehaviour
 {
-    public List<Transform> waypoints;
-    [HideInInspector] public List<Transform> waypointsInternal = new();
-    public List<Transform> platforms;
+    public List<Transform> _waypoints;
+    // Add the first waypoint to the end of list if loop type is set to loop
+    [HideInInspector] public List<Transform> waypoints {
+        get {
+            _waypoints = _waypoints.Where(w => w != null).ToList();
+            return loopType switch
+            {
+                WaypointLoopType.Loop => _waypoints.Append(_waypoints.First()).ToList(),
+                WaypointLoopType.PingPong => _waypoints,
+                _ => throw new System.NotImplementedException(),
+            };
+        }
+    }
+    public List<Transform> _platforms;
+    public List<Transform> platforms {
+        get {
+            _platforms = _platforms.Where(p => p != null).ToList();
+            return _platforms;
+        }
+    }
     public float speed;
     public WaypointLoopType loopType;
     public bool pauseAtEnds;
@@ -82,32 +99,23 @@ public class ObbyWaypointCarousel : MonoBehaviour
             int waypointIdx = _platformWaypointIndices[i];
             float dist = _waypointDistSumarray[waypointIdx + 1] - _waypointDistSumarray[waypointIdx];
             float localPos = _platformPositions[i] - _waypointDistSumarray[waypointIdx];
-            Vector3 posA = waypointsInternal[waypointIdx].position;
-            Vector3 posB = waypointsInternal[waypointIdx + 1].position;
+            Vector3 posA = waypoints[waypointIdx].position;
+            Vector3 posB = waypoints[waypointIdx + 1].position;
             platforms[i].position = Vector3.Lerp(posA, posB, localPos / dist);
         }
     }
 
     //FIXME: probably abusing OnValidate here
     private void OnValidate() {
-        if (waypoints.Count < 2) {
+        if (_waypoints.Count < 2) {
             Debug.LogError("WaypointCarousel requires more than one waypoint!");
             return;
         }
-        
-        // Add the first waypoint to the end of list if loop type is set to loop
-        if (waypointsInternal.Count < waypoints.Count)
-            waypointsInternal.AddRange(waypoints);
-
-        if (loopType == WaypointLoopType.Loop && waypointsInternal.Count == waypoints.Count)
-            waypointsInternal.Add(waypointsInternal.First());
-        else if (loopType == WaypointLoopType.PingPong && waypointsInternal.Count > waypoints.Count) 
-            waypointsInternal.RemoveAt(waypointsInternal.Count - 1);
-        
+                
         // populate distance sum array and maxposition
         _waypointDistSumarray = new List<float> { 0 };
-        for (int i = 1; i < waypointsInternal.Count; i++) {
-            float dist = Vector3.Distance(waypointsInternal[i - 1].position, waypointsInternal[i].position);
+        for (int i = 1; i < waypoints.Count; i++) {
+            float dist = Vector3.Distance(waypoints[i - 1].position, waypoints[i].position);
             _waypointDistSumarray.Add(dist + _waypointDistSumarray[i - 1]);
         }
         _maxPosition = _waypointDistSumarray.Last();

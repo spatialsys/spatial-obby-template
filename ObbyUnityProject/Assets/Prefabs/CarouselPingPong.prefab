@@ -188,22 +188,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 57e15ada4fa7247b4b23ab49f4f8b201, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waypoints:
+  _waypoints:
   - {fileID: 991495157805693450}
   - {fileID: 991495157961446516}
   - {fileID: 991495157821002475}
   - {fileID: 991495157265112843}
-  waypointsInternal:
-  - {fileID: 991495157805693450}
-  - {fileID: 991495157961446516}
-  - {fileID: 991495157821002475}
-  - {fileID: 991495157265112843}
-  platforms:
+  _platforms:
   - {fileID: 991495157053394928}
   - {fileID: 991495158226315832}
   - {fileID: 991495158061546453}
   speed: 3
   loopType: 0
+  pauseAtEnds: 0
+  pauseTime: 0
   spacingType: 1
   customSpacing: 4
   maxSpacing: 13.333333

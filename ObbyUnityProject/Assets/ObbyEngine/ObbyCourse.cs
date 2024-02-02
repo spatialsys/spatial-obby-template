@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 /// <summary>
@@ -9,8 +10,14 @@ public class ObbyCourse : MonoBehaviour
 {
     public string courseID;
 
-    public ObbyNode[] nodes = new ObbyNode[0];
-
+    [SerializeField] private ObbyNode[] _nodes = new ObbyNode[0];
+    public ObbyNode[] nodes {
+        get {
+            _nodes = _nodes.Where(n => n != null).ToArray();
+            return _nodes;
+        }
+        set { _nodes = value; }
+    }
     private void OnEnable()
     {
     }

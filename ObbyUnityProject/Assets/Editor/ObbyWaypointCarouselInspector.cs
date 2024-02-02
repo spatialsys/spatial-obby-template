@@ -14,9 +14,9 @@ public class ObbyWaypointCarouselInspector : Editor
     void OnEnable() {
         _speed = serializedObject.FindProperty(nameof(ObbyWaypointCarousel.speed));
         _loopType = serializedObject.FindProperty(nameof(ObbyWaypointCarousel.loopType));
-        _waypoints = serializedObject.FindProperty(nameof(ObbyWaypointCarousel.waypoints));
+        _waypoints = serializedObject.FindProperty(nameof(ObbyWaypointCarousel._waypoints));
         _spacingType = serializedObject.FindProperty(nameof(ObbyWaypointCarousel.spacingType));
-        _platforms = serializedObject.FindProperty(nameof(ObbyWaypointCarousel.platforms));
+        _platforms = serializedObject.FindProperty(nameof(ObbyWaypointCarousel._platforms));
     }
 
     public override void OnInspectorGUI()
