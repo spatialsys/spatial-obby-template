@@ -36,6 +36,11 @@ public class ObbyWaypointCarouselInspector : Editor
         {
             case WaypointLoopType.PingPong:
                 EditorGUILayout.HelpBox("All platforms reverse direction once the last waypoint is reached.", MessageType.None);
+                SerializedProperty _pauseAtEnds = serializedObject.FindProperty(nameof(ObbyWaypointCarousel.pauseAtEnds));
+                EditorGUILayout.PropertyField(_pauseAtEnds);
+                if (_pauseAtEnds.boolValue) {
+                    EditorGUILayout.PropertyField(serializedObject.FindProperty(nameof(ObbyWaypointCarousel.pauseTime)));
+                }
                 break;
             case WaypointLoopType.Loop:
                 EditorGUILayout.HelpBox("Platforms loop back from the last waypoint to the first waypoint.", MessageType.None);
@@ -62,9 +67,8 @@ public class ObbyWaypointCarouselInspector : Editor
         EditorGUILayout.PropertyField(_speed);
         EditorGUILayout.HelpBox("Speed of all platforms, capped at 100.", MessageType.None);
         
-        if (serializedObject.ApplyModifiedProperties()) {
-            //(target as ObbyWaypointCarousel).SyncPosition();
-        }
+        serializedObject.ApplyModifiedProperties();
+        (target as ObbyWaypointCarousel).SyncPosition();
     }
 
 }

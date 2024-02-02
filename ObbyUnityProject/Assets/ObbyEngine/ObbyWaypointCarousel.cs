@@ -20,6 +20,8 @@ public class ObbyWaypointCarousel : MonoBehaviour
     public List<Transform> platforms;
     public float speed;
     public WaypointLoopType loopType;
+    public bool pauseAtEnds;
+    public float pauseTime;
     public WaypointSpacingType spacingType;
     public float customSpacing;
     [HideInInspector] public float maxSpacing;
@@ -27,18 +29,31 @@ public class ObbyWaypointCarousel : MonoBehaviour
     private List<int> _platformWaypointIndices = new();
     private List<float> _waypointDistSumarray = new();
     private float _maxPosition;
+    private float _pauseTimer;
 
     private void Start() {
         OnValidate();
     }
     
     private void Update() {
-        float increment = Time.deltaTime * speed;
+        // if the pause timer is active, don't do anything
+        if (_pauseTimer > 0) {
+            _pauseTimer -= Time.deltaTime;
+            return;
+        }
         
+        float increment = Time.deltaTime * speed;
+
         // if pingpong and reached end, flip direction
         if (loopType == WaypointLoopType.PingPong && (_platformPositions.Last() + increment > _maxPosition || _platformPositions.First() + increment < 0)) {
             speed *= -1;
             increment *= -1;
+
+            // if pause at ends is on then we start the pause now
+            if (pauseAtEnds) {
+                _pauseTimer = pauseTime;
+                return;
+            }
         }
 
         for (int i = 0; i < _platformPositions.Count; i++) {
@@ -54,7 +69,7 @@ public class ObbyWaypointCarousel : MonoBehaviour
         SyncPosition();
     }
     
-    private void SyncPosition() {
+    public void SyncPosition() {
         for (int i = 0; i < platforms.Count; i++) {
             // update waypoint index if position is past dist of waypoint
             if (_platformPositions[i] > _waypointDistSumarray[_platformWaypointIndices[i] + 1]) {
@@ -122,7 +137,13 @@ public class ObbyWaypointCarousel : MonoBehaviour
             }
         }
 
+        // only allow pause at ends for pingpong
+        if (loopType != WaypointLoopType.PingPong) {
+            pauseAtEnds = false;
+        }
+
         speed = Mathf.Clamp(speed, 0, 100);
+        pauseTime = Mathf.Abs(pauseTime);
 
         // Sync position platforms while in editor
         SyncPosition();
