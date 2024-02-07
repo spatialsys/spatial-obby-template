@@ -7,6 +7,16 @@ using UnityEngine;
 
 public class ObbyGameManager : MonoBehaviour
 {
+    private class EmptyInputActionsListener : IAvatarInputActionsListener {
+        public void OnAvatarMoveInput(InputPhase inputPhase, Vector2 inputMove) {}
+        public void OnAvatarJumpInput(InputPhase inputPhase) {}
+        public void OnAvatarSprintInput(InputPhase inputPhase) {}
+        public void OnAvatarActionInput(InputPhase inputPhase) {}
+        public void OnAvatarAutoSprintToggled(bool on) {}
+        public void OnInputCaptureStarted(InputCaptureType type) {}
+        public void OnInputCaptureStopped(InputCaptureType type) {}
+    }
+
     private const string SAVED_PROGRESS_KEY = "OBBY_GAME_SAVED_PROGRESS";
     public static ObbyGameManager instance;
 
@@ -28,6 +38,7 @@ public class ObbyGameManager : MonoBehaviour
     public event Action OnCurrentNodeChanged;
 
     private Coroutine killCo;
+    private EmptyInputActionsListener killInputListener = new EmptyInputActionsListener();
 
     private void Awake()
     {
@@ -39,7 +50,7 @@ public class ObbyGameManager : MonoBehaviour
     {
         yield return new WaitUntil(() => SpatialBridge.actorService != null);
         yield return new WaitUntil(() => SpatialBridge.GetIsSceneInitialized.Invoke());
-
+        yield return new WaitUntil(() => SpatialBridge.userWorldDataStoreService != null);
         if (defaultCourse == null)
         {
             Debug.LogError("No default course set!");
@@ -126,7 +137,6 @@ public class ObbyGameManager : MonoBehaviour
         instance.currentCourse = course;
         instance.currentCourseNodeIndex = nodeIndex;
 
-
         SpatialBridge.userWorldDataStoreService.SetVariable(SavedDataKeyForCourse(course), instance.saveFile[course.courseID]);
         if (isNewLocation)
         {
@@ -180,12 +190,12 @@ public class ObbyGameManager : MonoBehaviour
 
     private IEnumerator KillCoroutine()
     {
-        SpatialBridge.SetInputOverrides.Invoke(true, true, true, true, gameObject);//disable player input.
+        SpatialBridge.inputService.StartAvatarInputCapture(true, true, true, true, killInputListener);//disable player input.
         SpatialBridge.actorService.localActor.avatar.Move(Vector3.zero);//cancel any current movement input.
         ObbySmoothCamera.FreezeCamOnPosition(SpatialBridge.actorService.localActor.avatar.position, () =>
         {
             //regain input once camera returns.
-            SpatialBridge.SetInputOverrides.Invoke(false, false, false, false, gameObject);
+            SpatialBridge.inputService.ReleaseInputCapture(killInputListener);
         });
         SpatialBridge.cameraService.Shake(3f);
         SpatialBridge.cameraService.Wobble(2f);
