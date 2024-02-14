@@ -49,7 +49,7 @@ public class ObbyGameManager : MonoBehaviour
     private IEnumerator LoadFromSave()
     {
         yield return new WaitUntil(() => SpatialBridge.actorService != null);
-        yield return new WaitUntil(() => SpatialBridge.GetIsSceneInitialized.Invoke());
+        yield return new WaitUntil(() => SpatialBridge.spaceContentService.isSceneInitialized);
         yield return new WaitUntil(() => SpatialBridge.userWorldDataStoreService != null);
         if (defaultCourse == null)
         {
